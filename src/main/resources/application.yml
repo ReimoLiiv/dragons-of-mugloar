@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: dragons-of-mugloar
+
+mugloar:
+  base-url: https://dragonsofmugloar.com/api/v2
