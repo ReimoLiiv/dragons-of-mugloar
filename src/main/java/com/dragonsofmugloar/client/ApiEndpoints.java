@@ -1,6 +1,6 @@
 package com.dragonsofmugloar.client;
 
-public enum ApiEndpoint {
+public enum ApiEndpoints {
 
     START_GAME("/game/start"),
     INVESTIGATE_REPUTATION("/{gameId}/investigate/reputation"),
@@ -11,7 +11,7 @@ public enum ApiEndpoint {
 
     private final String path;
 
-    ApiEndpoint(String path) {
+    ApiEndpoints(String path) {
         this.path = path;
     }
 

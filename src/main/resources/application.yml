@@ -4,3 +4,5 @@ spring:
 
 mugloar:
   base-url: https://dragonsofmugloar.com/api/v2
+  connect-timeout: 2s
+  read-timeout: 3s

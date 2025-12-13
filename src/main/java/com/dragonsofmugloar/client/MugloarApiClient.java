@@ -1,13 +1,21 @@
 package com.dragonsofmugloar.client;
 
+import com.dragonsofmugloar.client.exception.MugloarServerException;
 import com.dragonsofmugloar.model.*;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
 
+@Retryable(
+        retryFor = {MugloarServerException.class, ResourceAccessException.class},
+        backoff = @Backoff(delay = 500, multiplier = 2.0)
+)
 @Component
 public class MugloarApiClient {
 
@@ -22,14 +30,18 @@ public class MugloarApiClient {
     }
 
     public GameStartResponse startGame() {
-        return restClient.post()
-                .uri(ApiEndpoint.START_GAME.path())
-                .retrieve()
-                .body(GameStartResponse.class);
+        try {
+            return restClient.post()
+                    .uri(ApiEndpoints.START_GAME.path())
+                    .retrieve()
+                    .body(GameStartResponse.class);
+        } catch (ResourceAccessException _) {
+            throw new MugloarServerException("Failed to reach Mugloar API");
+        }
     }
 
     public ReputationResponse investigateReputation(String gameId) {
-        return restClient.post().uri(ApiEndpoint.INVESTIGATE_REPUTATION.path(), Map.of(GAME_ID, gameId)
+        return restClient.post().uri(ApiEndpoints.INVESTIGATE_REPUTATION.path(), Map.of(GAME_ID, gameId)
                 )
                 .retrieve()
                 .body(ReputationResponse.class);
@@ -37,7 +49,7 @@ public class MugloarApiClient {
 
     public List<MessageTask> getMessages(String gameId) {
         return restClient.get()
-                .uri(ApiEndpoint.GET_MESSAGES.path(), Map.of(GAME_ID, gameId))
+                .uri(ApiEndpoints.GET_MESSAGES.path(), Map.of(GAME_ID, gameId))
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
@@ -45,21 +57,21 @@ public class MugloarApiClient {
 
     public SolveResponse solveMessage(String gameId, String adId) {
         return restClient.post()
-                .uri(ApiEndpoint.SOLVE_MESSAGE.path(), Map.of(GAME_ID, gameId, AD_ID, adId))
+                .uri(ApiEndpoints.SOLVE_MESSAGE.path(), Map.of(GAME_ID, gameId, AD_ID, adId))
                 .retrieve()
                 .body(SolveResponse.class);
     }
 
     public List<ShopItem> getShopItems(String gameId) {
         return restClient.get()
-                .uri(ApiEndpoint.GET_SHOP_ITEMS.path(), Map.of(GAME_ID, gameId))
+                .uri(ApiEndpoints.GET_SHOP_ITEMS.path(), Map.of(GAME_ID, gameId))
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
     }
 
     public BuyItemResponse buyItem(String gameId, String itemId) {
-        return restClient.post().uri(ApiEndpoint.BUY_SHOP_ITEM.path(), Map.of(GAME_ID, gameId, ITEM_ID, itemId)
+        return restClient.post().uri(ApiEndpoints.BUY_SHOP_ITEM.path(), Map.of(GAME_ID, gameId, ITEM_ID, itemId)
                 )
                 .retrieve()
                 .body(BuyItemResponse.class);
