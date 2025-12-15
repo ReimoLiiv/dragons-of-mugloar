@@ -30,14 +30,10 @@ public class MugloarApiClient {
     }
 
     public GameStartResponse startGame() {
-        try {
             return restClient.post()
                     .uri(ApiEndpoints.START_GAME.path())
                     .retrieve()
                     .body(GameStartResponse.class);
-        } catch (ResourceAccessException _) {
-            throw new MugloarServerException("Failed to reach Mugloar API");
-        }
     }
 
     public ReputationResponse investigateReputation(String gameId) {

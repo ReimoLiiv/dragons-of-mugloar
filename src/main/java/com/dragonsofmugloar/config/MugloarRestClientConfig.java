@@ -20,13 +20,13 @@ import java.nio.charset.StandardCharsets;
 public class MugloarRestClientConfig {
 
     @Bean
-    RestClient restClient(MugloarApiProperties properties) {
+    RestClient restClient(RestClient.Builder builder, MugloarApiProperties properties) {
 
         var requestFactory = ClientHttpRequestFactoryBuilder.httpComponents()
                 .build(HttpClientSettings.defaults()
                         .withTimeouts(properties.connectTimeout(), properties.readTimeout()));
 
-        return RestClient.builder()
+        return builder
                 .baseUrl(properties.baseUrl())
                 .requestFactory(requestFactory)
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError,
