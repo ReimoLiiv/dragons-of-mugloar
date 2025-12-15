@@ -6,3 +6,20 @@ mugloar:
   base-url: https://dragonsofmugloar.com/api/v2
   connect-timeout: 2s
   read-timeout: 3s
+
+strategy:
+  reward-weight: 1.0
+  expiration-penalty: 0.05
+
+  min-risk-score-by-lives:
+    3: 2   # allow Risky
+    2: 3   # Quite likely+
+    1: 4   # Walk in the park+
+
+  probability-weights:
+    "Sure thing": 0.99
+    "Piece of cake": 0.95
+    "Walk in the park": 0.90
+    "Quite likely": 0.75
+    "Risky": 0.50
+    "Rather detrimental": 0.20

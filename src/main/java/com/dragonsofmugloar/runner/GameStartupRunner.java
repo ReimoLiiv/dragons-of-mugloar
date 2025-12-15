@@ -2,7 +2,8 @@ package com.dragonsofmugloar.runner;
 
 import com.dragonsofmugloar.client.MugloarApiClient;
 import com.dragonsofmugloar.client.exception.MugloarApiException;
-import com.dragonsofmugloar.model.GameStartResponse;
+import com.dragonsofmugloar.game.GameEngine;
+import com.dragonsofmugloar.model.GameResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -11,19 +12,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class GameStartupRunner implements CommandLineRunner {
 
-    private final MugloarApiClient apiClient;
+    private final GameEngine gameEngine;
 
-    public GameStartupRunner(MugloarApiClient apiClient) {
-        this.apiClient = apiClient;
+    public GameStartupRunner(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
     }
 
     @Override
     public void run(String... args) {
         try {
-            GameStartResponse response = apiClient.startGame();
-            log.info("Game started: {}", response);
+            GameResult result = gameEngine.playOnce();
+            log.info("Game finished: {}", result);
         } catch (MugloarApiException ex) {
-            log.error("Startup failed, shutting down gracefully", ex);
+            log.error("Game run failed, shutting down gracefully", ex);
         }
     }
 }
