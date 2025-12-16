@@ -1,7 +1,7 @@
 package com.dragonsofmugloar.client;
 
 import com.dragonsofmugloar.client.exception.MugloarServerException;
-import com.dragonsofmugloar.model.*;
+import com.dragonsofmugloar.model.responses.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.restclient.test.autoconfigure.RestClientTest;

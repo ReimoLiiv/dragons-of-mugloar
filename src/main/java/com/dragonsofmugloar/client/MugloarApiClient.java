@@ -1,7 +1,7 @@
 package com.dragonsofmugloar.client;
 
 import com.dragonsofmugloar.client.exception.MugloarServerException;
-import com.dragonsofmugloar.model.*;
+import com.dragonsofmugloar.model.responses.*;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;

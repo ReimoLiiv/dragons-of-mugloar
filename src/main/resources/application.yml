@@ -8,18 +8,47 @@ mugloar:
   read-timeout: 3s
 
 strategy:
-  reward-weight: 1.0
-  expiration-penalty: 0.05
-
-  min-risk-score-by-lives:
-    3: 2   # allow Risky
-    2: 3   # Quite likely+
-    1: 4   # Walk in the park+
-
   probability-weights:
-    "Sure thing": 0.99
-    "Piece of cake": 0.95
-    "Walk in the park": 0.90
-    "Quite likely": 0.75
-    "Risky": 0.50
-    "Rather detrimental": 0.20
+    SURE_THING: 0.99
+    PIECE_OF_CAKE: 0.96
+    WALK_IN_THE_PARK: 0.85
+    QUITE_LIKELY: 0.75
+    HMMM: 0.65
+    GAMBLE: 0.56
+    RISKY: 0.49
+    RATHER_DETRIMENTAL: 0.39
+    PLAYING_WITH_FIRE: 0.27
+    SUICIDE_MISSION: 0.10
+
+  shop:
+    emergency-heal-lives-below: 2
+
+    enabled:
+      healing-potion: true
+      basic-items: true
+      advanced-items: true
+
+    limits:
+      max-healing-potions: 25
+
+    buy-thresholds:
+      basic-items-gold: 150
+      advanced-items-gold: 350
+
+    item-groups:
+      basic:
+        - cs
+        - gas
+        - wax
+        - tricks
+        - wingpot
+      advanced:
+        - ch
+        - rf
+        - iron
+        - mtrix
+        - wingpotmax
+
+  message-filters:
+    forbidden-phrases:
+      - "super awesome diamond"

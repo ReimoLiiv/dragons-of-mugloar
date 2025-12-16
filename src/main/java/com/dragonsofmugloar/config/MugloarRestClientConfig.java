@@ -2,7 +2,6 @@ package com.dragonsofmugloar.config;
 
 import com.dragonsofmugloar.client.exception.MugloarClientException;
 import com.dragonsofmugloar.client.exception.MugloarServerException;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
-@EnableConfigurationProperties(MugloarApiProperties.class)
 @EnableRetry
 public class MugloarRestClientConfig {
 

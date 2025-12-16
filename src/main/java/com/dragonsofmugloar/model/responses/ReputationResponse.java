@@ -1,4 +1,4 @@
-package com.dragonsofmugloar.model;
+package com.dragonsofmugloar.model.responses;
 
 public record ReputationResponse(
         int people,
