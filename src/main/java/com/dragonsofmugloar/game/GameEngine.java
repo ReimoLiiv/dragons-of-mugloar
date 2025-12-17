@@ -17,92 +17,88 @@ public class GameEngine {
     private final MugloarApiClient apiClient;
     private final Strategy strategy;
 
-    private int healingPotionsBought = 0;
-
     public GameEngine(MugloarApiClient apiClient, Strategy strategy) {
         this.apiClient = apiClient;
         this.strategy = strategy;
     }
 
-    public GameResult playOnce() {
+    public GameResult play() {
         GameStartResponse start = apiClient.startGame();
-
-        GameState state = new GameState(
-                start.lives(),
-                start.gold(),
-                start.score(),
-                start.turn()
-        );
+        ReputationResponse reputation;
+        GameState state = new GameState(start.lives(), start.gold(), start.score(), start.turn());
 
         String gameId = start.gameId();
         logGameStart(gameId, state);
 
         while (state.isAlive()) {
-            boolean progressed = playTurn(gameId, state);
+            reputation = apiClient.investigateReputation(gameId);
+            boolean progressed = playTurn(gameId, state, reputation);
             if (!progressed) break;
         }
 
         return new GameResult(gameId, state.getScore());
     }
 
-    private boolean playTurn(String gameId, GameState state) {
-        Optional<MessageTask> task = pickMission(gameId);
+    private boolean playTurn(String gameId, GameState state, ReputationResponse reputation) {
+        boolean didSomeMessage = false;
+
+        Optional<MessageTask> task = pickMessage(gameId, reputation);
 
         if (task.isPresent()) {
-            solveMission(gameId, state, task.get());
-            buyUntilExhausted(gameId, state);
-            return true;
+            solveMessage(gameId, state, task.get());
+            didSomeMessage = true;
         }
+        boolean boughtSomething = buyItems(gameId, state);
 
-        return buyUntilExhausted(gameId, state);
+        return didSomeMessage || boughtSomething;
     }
 
-    private Optional<MessageTask> pickMission(String gameId) {
+    private Optional<MessageTask> pickMessage(String gameId, ReputationResponse reputation) {
         List<MessageTask> messages = apiClient.getMessages(gameId);
-        for (MessageTask m : messages) {
-            log.info("Mission: reward={} expiresIn={} prob={}", m.reward(), m.expiresIn(), m.probability());
-        }
-        return strategy.choose(messages);
+
+        return strategy.chooseMessage(messages, reputation);
     }
 
-    private void solveMission(String gameId, GameState state, MessageTask task) {
-        logMissionChosen(state.getTurn(), task);
-
+    private void solveMessage(String gameId, GameState state, MessageTask task) {
         SolveResponse result = apiClient.solveMessage(gameId, task.adId());
         logMissionResult(state, result);
 
-        state.applySolveResult(result.lives(), result.gold(), result.score(), result.turn());
+        state.applyNewState(result.lives(), result.gold(), result.score(), result.turn());
     }
 
-    private boolean buyUntilExhausted(String gameId, GameState state) {
+    private boolean buyItems(String gameId, GameState state) {
         boolean boughtAnything = false;
-        boolean canContinue = true;
-        while (canContinue) {
-            List<String> purchases = strategy.decideShopPurchases(state.getGold(), state.getLives(),
-                    healingPotionsBought);
 
-            boolean boughtThisRound = false;
-
-            for (String item : purchases) {
-                BuyItemResponse buy = apiClient.buyItem(gameId, item);
-                logShopPurchase(item, buy);
-
-                if (buy.shoppingSuccess()) {
-                    boughtAnything = true;
-                    boughtThisRound = true;
-
-                    state.applySolveResult(buy.lives(), buy.gold(), state.getScore(), state.getTurn());
-
-                    if ("hpot".equals(item)) {
-                        healingPotionsBought++;
-                    }
-                }
-            }
-
-            canContinue = boughtThisRound && !purchases.isEmpty();
+        while (attemptPurchase(gameId, state)) {
+            boughtAnything = true;
         }
 
         return boughtAnything;
+    }
+
+    private boolean attemptPurchase(String gameId, GameState state) {
+        Optional<String> purchase = strategy.decideShopPurchase(state.getGold(), state.getLives(),
+                state.getHealingPotionsBought());
+
+        if (purchase.isEmpty()) {
+            return false;
+        }
+
+        String item = purchase.get();
+        BuyItemResponse buy = apiClient.buyItem(gameId, item);
+        logShopPurchase(item, buy);
+
+        if (!buy.shoppingSuccess()) {
+            return false;
+        }
+
+        state.applyNewState(buy.lives(), buy.gold(), state.getScore(), state.getTurn());
+
+        if ("hpot".equals(item)) {
+            state.incrementHealingPotionsBought();
+        }
+
+        return true;
     }
 
     private void logGameStart(String gameId, GameState state) {
@@ -113,18 +109,6 @@ public class GameEngine {
                 state.getGold(),
                 state.getScore(),
                 state.getTurn()
-        );
-    }
-
-    private void logMissionChosen(int turn, MessageTask task) {
-        log.info(
-                "Turn {}: chosen adId={}, reward={}, expiresIn={}, probability={}, message=\"{}\"",
-                turn,
-                task.adId(),
-                task.reward(),
-                task.expiresIn(),
-                task.probability(),
-                task.message()
         );
     }
 

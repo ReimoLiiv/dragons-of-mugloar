@@ -20,6 +20,10 @@ strategy:
     PLAYING_WITH_FIRE: 0.27
     SUICIDE_MISSION: 0.10
 
+  reputation-rules:
+    enabled: true
+    max-state-deficit: 1
+
   shop:
     emergency-heal-lives-below: 2
 
@@ -32,8 +36,8 @@ strategy:
       max-healing-potions: 25
 
     buy-thresholds:
-      basic-items-gold: 150
-      advanced-items-gold: 350
+      basic-items-gold: 100
+      advanced-items-gold: 300
 
     item-groups:
       basic:

@@ -1,6 +1,6 @@
 package com.dragonsofmugloar.model.strategy;
 
-public record ShopProperties(
+public record Shop(
         int emergencyHealLivesBelow,
         EnabledItemFlags enabled,
         BuyThresholds buyThresholds,
